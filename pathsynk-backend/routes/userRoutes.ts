@@ -16,15 +16,13 @@ router.post('/register', async (req: Request, res: Response) => {
     try {
         const { username, email, password, status, profile } = req.body;
 
-        // Check if the user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({
             username,
             email,
-            password: hashedPassword,
+            password,
             status,
             profile
         });
@@ -32,9 +30,9 @@ router.post('/register', async (req: Request, res: Response) => {
         await newUser.save();
 
         const token = generateToken(newUser._id.toString());
-
         res.status(201).json({ user: newUser, token });
     } catch (error: any) {
+        console.log(error.message);
         res.status(500).json({ message: error.message });
     }
 });
@@ -42,6 +40,7 @@ router.post('/register', async (req: Request, res: Response) => {
 // Login route
 router.post('/login', async (req: Request, res: Response) => {
     try {
+        console.log(req.body)
         const { email, password } = req.body;
 
         const user = await User.findOne({ email });
@@ -55,6 +54,7 @@ router.post('/login', async (req: Request, res: Response) => {
         res.status(200).json({ user, token });
     } catch (error: any) {
         res.status(500).json({ message: error.message });
+        console.log(error.message);
     }
 });
 

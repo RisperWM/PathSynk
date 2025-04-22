@@ -10,30 +10,23 @@ export interface IUser extends Document {
     dateJoined: Date;
     status: string;
     profile: string;
-    createdAt: string;
-    updatedAt: string;
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-
 const userSchema = new Schema<IUser>(
     {
-        _id: { type: Schema.Types.ObjectId, required: false },
         username: { type: String, required: true, unique: true },
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         role: { type: String, default: 'user' },
         dateJoined: { type: Date, default: Date.now },
         status: { type: String, required: true },
-        profile: { type: String, required: true },
-        createdAt: { type: String, required: true },
-        updatedAt: { type: String, required: true },
+        profile: { type: String, required: false },
     },
     { timestamps: true }
 );
 
-
-// Hash password before saving
+// Automatically hash password before saving
 userSchema.pre<IUser>('save', async function (next) {
     if (!this.isModified('password')) return next();
     try {
@@ -45,7 +38,7 @@ userSchema.pre<IUser>('save', async function (next) {
     }
 });
 
-// Method to compare password
+// Compare password method
 userSchema.methods.comparePassword = async function (
     candidatePassword: string
 ): Promise<boolean> {
